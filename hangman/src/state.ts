@@ -1,6 +1,19 @@
 import { GameStatus, wordToMap } from "./util";
 
-export const initialState = {
+type CharMap = { [key: string]: number[] };
+
+export interface State {
+  enteredCharacters: { [key: string]: boolean };
+  charMap: CharMap;
+  wordArr: Array<string>;
+  charsLeft: number;
+  chancesLeft: number;
+  timer: number;
+  gameStatus: string;
+  wordLoading: boolean;
+}
+
+export const initialState: State = {
   enteredCharacters: {},
   charMap: {},
   wordArr: [],
@@ -11,12 +24,12 @@ export const initialState = {
   wordLoading: false,
 };
 
-export function startGame(state) {
+export function startGame(state: State): State {
   return { ...state, gameStatus: GameStatus.START };
 }
 
-export function initializeState(state, word) {
-  const charMap = wordToMap(word);
+export function initializeState(state: State, word: string): State {
+  const charMap: CharMap = wordToMap(word);
   const wordArr = Array.from({ length: word.length }).map((_, idx) =>
     word[idx] === " " ? " " : "*"
   );
@@ -31,11 +44,11 @@ export function initializeState(state, word) {
   };
 }
 
-export function decreaseTimer(state) {
+export function decreaseTimer(state: State): State {
   return { ...state, timer: state.timer - 1 };
 }
 
-export function checkGameStatus(state) {
+export function checkGameStatus(state: State): State {
   if (state.charsLeft === 0) {
     return { ...state, gameStatus: GameStatus.WIN };
   } else if (state.chancesLeft === 0 || state.timer === 0) {
@@ -45,7 +58,7 @@ export function checkGameStatus(state) {
   return state;
 }
 
-export function selectCharacter(state, enteredCharacter) {
+export function selectCharacter(state: State, enteredCharacter: string) {
   const enteredCharacters = {
     ...state.enteredCharacters,
     [enteredCharacter]: true,
@@ -79,6 +92,6 @@ export function selectCharacter(state, enteredCharacter) {
   };
 }
 
-export function setWordLoading(state, wordLoading) {
+export function setWordLoading(state: State, wordLoading: boolean) {
   return { ...state, wordLoading };
 }

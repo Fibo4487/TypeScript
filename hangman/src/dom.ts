@@ -1,7 +1,7 @@
-export function h(tag) {
+export function h(tag: string) {
   return document.createElement(tag);
 }
 
-export function id(id) {
+export function id(id: string) {
   return document.getElementById(id);
 }

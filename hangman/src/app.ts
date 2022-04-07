@@ -7,34 +7,34 @@ import {
   selectCharacter,
   checkGameStatus,
   setWordLoading,
+  State,
 } from "./state";
 import { render } from "./components";
 import { GameStatus, fetchWord, isGameEnded } from "./util";
-import { fetchAllImages } from "./image-util";
+import { fetchAllImages, fetchedImageData } from "./image-util";
 
 const App = () => {
-  let state = { ...initialState };
-  let imageSources = null;
+  let state: State = { ...initialState };
+  let imageSources: fetchedImageData[] = null;
 
-  function changeState(callback) {
+  function changeState(callback: Function) {
     state = callback(state);
     render(state, onClickItem, onClickStart, imageSources);
   }
 
-  function initializeData() {
-    return fetchAllImages().then((images) => {
-      imageSources = images;
-    });
+  async function initializeData() {
+    const images = await fetchAllImages();
+    imageSources = images;
   }
 
-  function onClickItem(c) {
-    changeState((state) => selectCharacter(state, c));
+  function onClickItem(c: string) {
+    changeState((state: State) => selectCharacter(state, c));
   }
 
   function onClickStart() {
     if (state.wordLoading) return;
 
-    changeState((state) => setWordLoading(state, true));
+    changeState((state: State) => setWordLoading(state, true));
 
     fetchWord().then((word) => {
       const intervalId = setInterval(() => {
@@ -43,10 +43,10 @@ const App = () => {
           return;
         }
 
-        changeState((state) => checkGameStatus(decreaseTimer(state)));
+        changeState((state: State) => checkGameStatus(decreaseTimer(state)));
       }, 1000);
 
-      changeState((state) =>
+      changeState((state: State) =>
         startGame(initializeState(setWordLoading(state, false), word))
       );
     });

@@ -1,23 +1,34 @@
 import { GameStatus, isGameEnded, generateGameMessage } from "./util";
-import { calculateImageSize } from "./image-util";
+import { calculateImageSize, fetchedImageData } from "./image-util";
 import { h, id } from "./dom";
+import { State } from "./state";
 
-export const HangmanImage = (chancesLeft, images) => {
-  const container = id("hangman-image");
+export const HangmanImage = (
+  chancesLeft: number,
+  images: fetchedImageData[]
+) => {
+  const container = <HTMLCanvasElement>id("hangman-image");
   const context = container.getContext("2d");
   context.clearRect(0, 0, container.width, container.height);
 
-  images.slice(chancesLeft).map((item, idx) => {
+  images.slice(chancesLeft).map((item) => {
+    const calculatedSize = calculateImageSize(
+      item.image.width,
+      item.image.height,
+      70
+    );
+
     context.drawImage(
       item.image,
       item.dx,
       item.dy,
-      ...calculateImageSize(item.image.width, item.image.height, 70)
+      calculatedSize[0],
+      calculatedSize[1]
     );
   });
 };
 
-export const Word = (gameStatus, chancesLeft, wordArr) => {
+export const Word = ({ gameStatus, chancesLeft, wordArr }: Partial<State>) => {
   const container = id("word");
   container.innerHTML = "";
 
@@ -46,7 +57,11 @@ export const Word = (gameStatus, chancesLeft, wordArr) => {
   container.appendChild(wordText);
 };
 
-export const KeyboardLayout = (gameStatus, enteredCharacters, onClickItem) => {
+export const KeyboardLayout = (
+  gameStatus: string,
+  enteredCharacters: { [key: string]: boolean },
+  onClickItem: Function
+) => {
   const container = id("keyboard-layout");
   container.innerHTML = "";
 
@@ -56,8 +71,8 @@ export const KeyboardLayout = (gameStatus, enteredCharacters, onClickItem) => {
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     .split("")
     .map((c) => {
-      const li = h("li");
-      const button = h("button");
+      const li = <HTMLLIElement>h("li");
+      const button = <HTMLButtonElement>h("button");
 
       button.addEventListener("click", () => onClickItem(c));
       button.classList.add("keyboard-button");
@@ -73,11 +88,8 @@ export const KeyboardLayout = (gameStatus, enteredCharacters, onClickItem) => {
 };
 
 export const ButtonBox = (
-  wordLoading,
-  gameStatus,
-  chancesLeft,
-  timer,
-  onClickStart
+  { wordLoading, gameStatus, chancesLeft, timer }: State,
+  onClickStart: () => void
 ) => {
   const container = id("button-box");
   container.innerHTML = "";
@@ -90,10 +102,10 @@ export const ButtonBox = (
   // timer
   const timerText = h("div");
   timerText.classList.add("timer-text");
-  timerText.innerText = timer;
+  timerText.innerText = timer.toString();
 
   // Game start button
-  const button = h("button");
+  const button = <HTMLButtonElement>h("button");
   button.classList.add("start-button");
   button.innerText = "START";
   button.disabled = wordLoading || !isGameEnded(gameStatus);
@@ -102,15 +114,14 @@ export const ButtonBox = (
   container.append(chances, timerText, button);
 };
 
-export function render(state, onClickItem, onClickStart, imageSources) {
+export function render(
+  state: State,
+  onClickItem: Function,
+  onClickStart: () => void,
+  imageSources: fetchedImageData[]
+) {
   KeyboardLayout(state.gameStatus, state.enteredCharacters, onClickItem);
-  Word(state.gameStatus, state.chancesLeft, state.wordArr);
-  ButtonBox(
-    state.wordLoading,
-    state.gameStatus,
-    state.chancesLeft,
-    state.timer,
-    onClickStart
-  );
+  Word(state);
+  ButtonBox(state, onClickStart);
   HangmanImage(state.chancesLeft, imageSources);
 }

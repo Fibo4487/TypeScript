@@ -5,7 +5,7 @@ export const GameStatus = {
   WIN: "WIN",
 };
 
-export function isGameEnded(gameStatus) {
+export function isGameEnded(gameStatus: string) {
   return gameStatus !== GameStatus.START;
 }
 
@@ -15,18 +15,18 @@ export function fetchWord() {
     .then((data) => data.puzzle);
 }
 
-export function wordToMap(word) {
+export function wordToMap(word: string) {
   return word
     .toUpperCase()
     .split("")
-    .reduce((map, c, idx) => {
+    .reduce((map: { [key: string]: number[] }, c, idx) => {
       if (!map[c]) map[c] = [];
       map[c].push(idx);
       return map;
     }, {});
 }
 
-export function generateGameMessage(gameStatus, chancesLeft) {
+export function generateGameMessage(gameStatus: string, chancesLeft: number) {
   if (gameStatus === GameStatus.START) {
     return `남은 기회 : ${chancesLeft}`;
   } else if (gameStatus === GameStatus.READY) {

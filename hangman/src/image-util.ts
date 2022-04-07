@@ -6,7 +6,11 @@ import LeftLegImage from "./assets/left-leg.png";
 import RightLegImage from "./assets/right-leg.png";
 import HeadImage from "./assets/head.png";
 
-export function calculateImageSize(width, height, percent) {
+export function calculateImageSize(
+  width: number,
+  height: number,
+  percent: number
+): number[] {
   const calculatedPercent = percent / 100;
   const calculatedWidth = width * calculatedPercent;
   const calculatedHeight = height * calculatedPercent;
@@ -14,7 +18,14 @@ export function calculateImageSize(width, height, percent) {
   return [calculatedWidth, calculatedHeight];
 }
 
-const imageData = [
+export type ImageData = {
+  name: string;
+  url: string;
+  dx: number;
+  dy: number;
+}[];
+
+const imageData: ImageData = [
   { name: "right-leg", url: RightLegImage, dx: 242, dy: 290 },
   { name: "left-leg", url: LeftLegImage, dx: 193, dy: 290 },
 
@@ -26,9 +37,21 @@ const imageData = [
   { name: "gallows", url: GallowsImage, dx: 10, dy: 20 },
 ];
 
-export function loadImage(url, name, dx, dy) {
+export type fetchedImageData = {
+  image: HTMLImageElement;
+  name: string;
+  dx: number;
+  dy: number;
+};
+
+export function loadImage(
+  url: string,
+  name: string,
+  dx: number,
+  dy: number
+): Promise<fetchedImageData> {
   return new Promise((resolve, reject) => {
-    const image = new Image();
+    const image = <HTMLImageElement>new Image();
     image.src = url;
 
     image.addEventListener("load", () => resolve({ image, name, dx, dy }));
@@ -39,7 +62,7 @@ export function loadImage(url, name, dx, dy) {
 }
 
 export function fetchAllImages() {
-  return Promise.all(
+  return Promise.all<fetchedImageData>(
     imageData.map((item) => loadImage(item.url, item.name, item.dx, item.dy))
   );
 }
